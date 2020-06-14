@@ -23,17 +23,18 @@ fn part1(input: &str) -> Result<()> {
 // use cycle on iterator
 fn part2(input: &str) -> Result<()> {
     let mut set = HashSet::new();
-    input
-        .lines()
-        .cycle()
-        .map(|line| line.parse::<i32>().expect("parsing problem"))
-        .for_each(|x| {
-            if set.get(&x).is_some() {
-                println!("{}", x);
-                panic!();
-            } else {
-                set.insert(x);
+    set.insert(0);
+
+    let mut net_frequency = 0;
+    loop {
+        for freq in input.lines().map(|line| line.parse::<i32>().unwrap()) {
+            net_frequency += freq;
+            if (set.contains(&net_frequency)) {
+                writeln!(io::stdout(), "Part 2: {}", net_frequency)?;
+                return Ok(());
             }
-        });
+            set.insert(net_frequency);
+        }
+    }
     Ok(())
 }
