@@ -3,6 +3,7 @@ extern crate lazy_static;
 extern crate regex;
 
 use regex::Regex;
+use std::collections::HashMap;
 use std::str::FromStr;
 // Need to sort the logs
 // create a vector of logs, make logs comparable, then call vec.sort()
@@ -41,14 +42,34 @@ fn main() -> Result<()> {
     }
     logs.sort_by(|a, b| a.date.cmp(&b.date));
 
-    //for l in &logs {
-    //    println!("{:#?}", l);
-    //}
+    //    for l in &logs {
+    //        println!("{:#?}", l);
+    //    }
+    println!("{:#?}", logs[0]);
+
+    let mut events_by_guard = HashMap::<GuardID, Vec<Log>>::new();
+    let mut current_guard_id = None;
+    // we move logs into hashmap
+    for log in logs {
+        if let Action::StartShift { guardID: new_guard } = log.action {
+            current_guard_id = Some(new_guard);
+        };
+
+        match current_guard_id {
+            Some(id) => events_by_guard.entry(id).or_default().push(log),
+            None => return err!("No current guard"),
+        }
+    }
 
     Ok(())
 }
 
 type GuardID = u32;
+
+struct Guard {
+    id: GuardID,
+    timeAsleep: u32,
+}
 
 #[derive(Debug)]
 enum Action {
@@ -57,6 +78,7 @@ enum Action {
     WakesUp,
 }
 
+// Order is important here for comparing Date structs
 #[derive(Debug, PartialOrd, PartialEq, Eq, Ord)]
 struct Date {
     month: u8,
