@@ -29,7 +29,7 @@ fn main() -> Result<()> {
     }
     part1(&locations)?;
 
-    Ok(())
+    Ok(()) test
 }
 
 fn find_nearest_location(i: usize, j: usize, locations: &[Coordinate]) -> Coordinate {
